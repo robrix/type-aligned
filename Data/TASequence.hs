@@ -127,6 +127,8 @@ class TASequence (s :: (k -> k -> *) -> k -> k -> *) where
     TAEmptyL -> tempty
     h :< t -> f h <| tmap f t
 
+  {-# MINIMAL tempty, tsingleton, (tviewl | tviewr), ((><) | (<|) | (|>)) #-}
+
 
 data TAViewL s c x y where
    TAEmptyL  :: TAViewL s c x x
