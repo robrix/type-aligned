@@ -33,7 +33,7 @@
 --
 -- See the paper Reflection without Remorse: Revealing a hidden sequence to speed up Monadic Reflection, Atze van der Ploeg and Oleg Kiselyov, Haskell Symposium 2014
 -- for more details.
--- 
+--
 -- Paper: <http://homepages.cwi.nl/~ploeg/zseq.pdf>
 -- Talk : <http://www.youtube.com/watch?v=_XoI65Rxmss>
 -----------------------------------------------------------------------------
@@ -46,7 +46,7 @@ infixr 5 <|
 infixl 5 |>
 infix 5 ><
 {- | A type class for type aligned sequences
- 
+
 Minimal complete defention: 'tempty' and 'tsingleton' and ('tviewl' or 'tviewr') and ('><' or '|>' or '<|')
 
 Instances should satisfy the following laws:
@@ -73,10 +73,10 @@ class TASequence (s :: (k -> k -> *) -> k -> k -> *) where
   -- | View a type aligned sequence from the left
   tviewl     :: s c x y -> TAViewL s c x y
   -- | View a type aligned sequence from the right
-  --       
+  --
   -- Default definition:
-  -- 
-  -- > tviewr q = case tviewl q of 
+  --
+  -- > tviewr q = case tviewl q of
   -- >   TAEmptyL -> TAEmptyR
   -- >   h :< t -> case tviewr t of
   -- >        TAEmptyR -> tempty   :> h
@@ -85,39 +85,39 @@ class TASequence (s :: (k -> k -> *) -> k -> k -> *) where
   -- | Append a single element to the right
   --
   -- Default definition:
-  -- 
+  --
   -- > l |> r = l >< tsingleton r
 
   (|>)       :: s c x y -> c y z -> s c x z
   -- | Append a single element to the left
-  -- 
+  --
   -- Default definition:
   --
   -- > l <| r = tsingleton l >< r
 
   (<|)       :: c x y -> s c y z -> s c x z
   -- | Apply a function to all elements in a type aligned sequence
-  -- 
+  --
   -- Default definition:
-  -- 
+  --
   -- > tmap f q = case tviewl q of
   -- >    TAEmptyL -> tempty
   -- >    h :< t -> f h <| tmap f t
   tmap       :: (forall x y. c x y -> d x y) -> s c x y -> s d x y
-  
+
   l |> r = l >< tsingleton r
   l <| r = tsingleton l >< r
   l >< r = case tviewl l of
     TAEmptyL -> r
     h :< t  -> h <| (t >< r)
 
-  tviewl q = case tviewr q of 
+  tviewl q = case tviewr q of
     TAEmptyR -> TAEmptyL
     p :> l -> case tviewl p of
         TAEmptyL -> l :< tempty
         h :< t   -> h :< (t |> l)
 
-  tviewr q = case tviewl q of 
+  tviewr q = case tviewl q of
     TAEmptyL -> TAEmptyR
     h :< t -> case tviewr t of
         TAEmptyR -> tempty   :> h
