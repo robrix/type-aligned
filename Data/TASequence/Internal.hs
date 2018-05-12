@@ -4,6 +4,7 @@ module Data.TASequence.Internal
 , showsBinaryWith
 , showsUnaryWith
 , Forall2
+, (\\)
 ) where
 
 import Data.Constraint
