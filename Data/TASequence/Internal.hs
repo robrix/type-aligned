@@ -1,10 +1,13 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module Data.TASequence.Internal
 ( instShow
+, showsBinaryWith
+, showsUnaryWith
 ) where
 
 import Data.Constraint
 import Data.Constraint.Forall
+import Data.Functor.Classes (showsBinaryWith, showsUnaryWith)
 
 instShow :: forall graph x y . ForallF (ForallF Show) graph :- Show (graph x y)
 instShow = Sub $ case (instF :: ForallF (ForallF Show) graph :- ForallF Show (graph x)) of
