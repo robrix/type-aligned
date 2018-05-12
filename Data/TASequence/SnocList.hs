@@ -44,5 +44,5 @@ instance Category (SnocList c) where
 
 instance Forall2 Show c => Show (SnocList c a b) where
   showsPrec _ SNil                   = showString "SNil"
-  showsPrec d (Snoc xs (x :: c x y)) = showsBinaryWith showsPrec showsPrec "Snoc" d xs x \\
-    instShow @c @x @y
+  showsPrec d (Snoc xs (x :: c x y)) = showsBinaryWith showsPrec showsPrec "Snoc" d xs x
+    \\ instShow @c @x @y

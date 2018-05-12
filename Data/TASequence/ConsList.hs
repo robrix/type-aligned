@@ -37,5 +37,5 @@ instance Category (ConsList c) where
 
 instance Forall2 Show c => Show (ConsList c a b) where
   showsPrec _ CNil                   = showString "CNil"
-  showsPrec d (Cons (x :: c x y) xs) = showsBinaryWith showsPrec showsPrec "Cons" d x xs \\
-    instShow @c @x @y
+  showsPrec d (Cons (x :: c x y) xs) = showsBinaryWith showsPrec showsPrec "Cons" d x xs
+    \\ instShow @c @x @y
