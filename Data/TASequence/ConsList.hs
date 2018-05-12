@@ -1,4 +1,4 @@
-{-# LANGUAGE GADTs, PolyKinds #-}
+{-# LANGUAGE FlexibleContexts, GADTs, PolyKinds, ScopedTypeVariables, TypeApplications, UndecidableInstances #-}
 
 
 
@@ -17,6 +17,7 @@
 module Data.TASequence.ConsList(module Data.TASequence,ConsList(..)) where
 import Control.Category
 import Data.TASequence
+import Data.TASequence.Internal
 
 data ConsList c x y where
   CNil :: ConsList c x x
@@ -32,3 +33,9 @@ instance TASequence ConsList where
 instance Category (ConsList c) where
   id = tempty
   (.) = flip (><)
+
+
+instance Forall2 Show c => Show (ConsList c a b) where
+  showsPrec _ CNil                   = showString "CNil"
+  showsPrec d (Cons (x :: c x y) xs) = showsBinaryWith showsPrec showsPrec "Cons" d x xs \\
+    instShow @c @x @y
