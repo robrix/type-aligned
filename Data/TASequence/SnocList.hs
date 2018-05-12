@@ -1,4 +1,4 @@
-{-# LANGUAGE GADTs, PolyKinds #-}
+{-# LANGUAGE FlexibleContexts, GADTs, PolyKinds, ScopedTypeVariables, TypeApplications, UndecidableInstances #-}
 
 
 -----------------------------------------------------------------------------
@@ -18,6 +18,7 @@ module Data.TASequence.SnocList(module Data.TASequence,SnocList(..))  where
 
 import Control.Category
 import Data.TASequence
+import Data.TASequence.Internal
 import Prelude hiding (id)
 
 data SnocList c x y where
@@ -39,3 +40,9 @@ instance TASequence SnocList where
 instance Category (SnocList c) where
   id = tempty
   (.) = flip (><)
+
+
+instance Forall2 Show c => Show (SnocList c a b) where
+  showsPrec _ SNil                   = showString "SNil"
+  showsPrec d (Snoc xs (x :: c x y)) = showsBinaryWith showsPrec showsPrec "Snoc" d xs x \\
+    instShow @c @x @y
