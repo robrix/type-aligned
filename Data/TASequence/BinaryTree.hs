@@ -1,4 +1,4 @@
-{-# LANGUAGE GADTs, PolyKinds #-}
+{-# LANGUAGE FlexibleContexts, GADTs, PolyKinds, ScopedTypeVariables, TypeApplications, UndecidableInstances #-}
 
 
 
@@ -19,6 +19,7 @@ module Data.TASequence.BinaryTree(module Data.TASequence, BinaryTree) where
 
 import  Control.Category
 import  Data.TASequence
+import  Data.TASequence.Internal
 import  Prelude hiding (id)
 
 data BinaryTree c x y where
@@ -47,3 +48,10 @@ instance TASequence BinaryTree where
 instance Category (BinaryTree c) where
   id = tempty
   (.) = flip (><)
+
+
+instance Forall2 Show c => Show (BinaryTree c a b) where
+  showsPrec _ Empty               = showString "Empty"
+  showsPrec d (Leaf (x :: c x y)) = showsUnaryWith showsPrec "Leaf" d x
+    \\ instShow @c @x @y
+  showsPrec d (Node xs ys)        = showsBinaryWith showsPrec showsPrec "Node" d xs ys
