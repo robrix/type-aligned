@@ -1,4 +1,4 @@
-{-# LANGUAGE GADTs, PolyKinds, ScopedTypeVariables #-}
+{-# LANGUAGE FlexibleContexts, GADTs, PolyKinds, ScopedTypeVariables, TypeApplications, UndecidableInstances #-}
 
 
 
@@ -24,6 +24,7 @@ module Data.TASequence.ToCatQueue(module Data.TASequence,ToCatQueue) where
 
 import Control.Category
 import Data.TASequence
+import Data.TASequence.Internal
 import Prelude hiding (id)
 
 -- | The catenable queue type. The first type argument is the 
@@ -58,3 +59,9 @@ instance TASequence q => TASequence (ToCatQueue q) where
 instance TASequence q => Category (ToCatQueue q c) where
   id = tempty
   (.) = flip (><)
+
+
+instance (Forall2 Show c, Forall2 Show (q (ToCatQueue q c))) => Show (ToCatQueue q c a b) where
+  showsPrec _ C0                   = showString "C0"
+  showsPrec d (CN (x :: c x y) (xs :: q (ToCatQueue q c) y z)) = showsBinaryWith showsPrec showsPrec "CN" d x xs
+    \\ instShow @c @x @y \\ instShow @(q (ToCatQueue q c)) @y @z
