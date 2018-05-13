@@ -242,3 +242,10 @@ instance Forall2 Show c => Show (Digit c a b) where
     \\ instShow @c @x @y \\ instShow @c @y @z \\ instShow @c @z @w
   showsPrec d (Four (x :: c x y) (y :: c y z) (z :: c z w) (w :: c w u)) = showsQuaternaryWith showsPrec showsPrec showsPrec showsPrec "Four" d x y z w
     \\ instShow @c @x @y \\ instShow @c @y @z \\ instShow @c @z @w \\ instShow @c @w @u
+
+instance Forall2 Show c => Show (FingerTree c a b) where
+  showsPrec d Empty = showString "Empty"
+  showsPrec d (Single (x :: c x y)) = showsUnaryWith showsPrec "Single" d x
+    \\ instShow @c @x @y
+  showsPrec d (Deep (xs :: Digit c x y) (ys :: FingerTree (Node c) y z) (zs :: Digit c z w)) = showsTernaryWith showsPrec showsPrec showsPrec "Deep" d xs ys zs
+    \\ instShow @c @x @y \\ instShow @c @y @z \\ instShow @c @z @w
