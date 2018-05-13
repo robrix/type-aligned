@@ -221,3 +221,8 @@ instance Forall2 Show c => Show (ZList c a b) where
   showsPrec d ZNil = showString "ZNil"
   showsPrec d ((x :: c x y) ::: (xs :: ZList c y z)) = showsBinaryWith showsPrec showsPrec "(:::)" d x xs
     \\ instShow @c @x @y
+
+instance Forall2 Show c => Show (ZListR c a b) where
+  showsPrec d ZNilR = showString "ZNilR"
+  showsPrec d ((x :: c y z) :::< (xs :: ZListR c x y)) = showsBinaryWith showsPrec showsPrec "(:::<)" d x xs
+    \\ instShow @c @y @z
