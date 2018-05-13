@@ -2,6 +2,7 @@
 module Data.TASequence.Internal
 ( instShow
 , showsBinaryWith
+, showsQuaternaryWith
 , showsTernaryWith
 , showsUnaryWith
 , Forall2
@@ -25,3 +26,11 @@ showsTernaryWith showsPrecA showsPrecB showsPrecC s d a b c = showParen (d > 10)
   . showChar ' ' . showsPrecA 11 a
   . showChar ' ' . showsPrecB 11 b
   . showChar ' ' . showsPrecC 11 c
+
+showsQuaternaryWith :: (Int -> a -> ShowS) -> (Int -> b -> ShowS) -> (Int -> c -> ShowS) -> (Int -> d -> ShowS) -> String -> Int -> a -> b -> c -> d -> ShowS
+showsQuaternaryWith showsPrecA showsPrecB showsPrecC showsPrecD s n a b c d = showParen (n > 10)
+  $ showString s
+  . showChar ' ' . showsPrecA 11 a
+  . showChar ' ' . showsPrecB 11 b
+  . showChar ' ' . showsPrecC 11 c
+  . showChar ' ' . showsPrecD 11 d
