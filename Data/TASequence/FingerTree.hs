@@ -232,3 +232,13 @@ instance Forall2 Show c => Show (Node c a b) where
     \\ instShow @c @x @y \\ instShow @c @y @z
   showsPrec d (Node3 (x :: c x y) (y :: c y z) (z :: c z w)) = showsTernaryWith showsPrec showsPrec showsPrec "Node3" d x y z
     \\ instShow @c @x @y \\ instShow @c @y @z \\ instShow @c @z @w
+
+instance Forall2 Show c => Show (Digit c a b) where
+  showsPrec d (One (x :: c x y)) = showsUnaryWith showsPrec "One" d x
+    \\ instShow @c @x @y
+  showsPrec d (Two (x :: c x y) (y :: c y z)) = showsBinaryWith showsPrec showsPrec "Two" d x y
+    \\ instShow @c @x @y \\ instShow @c @y @z
+  showsPrec d (Three (x :: c x y) (y :: c y z) (z :: c z w)) = showsTernaryWith showsPrec showsPrec showsPrec "Three" d x y z
+    \\ instShow @c @x @y \\ instShow @c @y @z \\ instShow @c @z @w
+  showsPrec d (Four (x :: c x y) (y :: c y z) (z :: c z w) (w :: c w u)) = showsQuaternaryWith showsPrec showsPrec showsPrec showsPrec "Four" d x y z w
+    \\ instShow @c @x @y \\ instShow @c @y @z \\ instShow @c @z @w \\ instShow @c @w @u
