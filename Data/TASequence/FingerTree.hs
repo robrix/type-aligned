@@ -1,5 +1,4 @@
-{-# LANGUAGE Rank2Types,GADTs, PolyKinds #-}
-
+{-# LANGUAGE FlexibleContexts, GADTs, PolyKinds, Rank2Types, ScopedTypeVariables, TypeApplications, UndecidableInstances #-}
 
 
 
@@ -24,6 +23,7 @@ module Data.TASequence.FingerTree (module Data.TASequence, FingerTree ) where
 
 import Control.Category
 import Data.TASequence
+import Data.TASequence.Internal
 import Prelude hiding (id)
 
 
@@ -52,7 +52,7 @@ instance TASequence FingerTree where
   Deep pr m sf              |> a = Deep pr m (appendd sf (One a))
 
   a <| Empty                     = Single a
-  a <| Single b                  = Deep (One a) Empty (One b) 
+  a <| Single b                  = Deep (One a) Empty (One b)
   a <| Deep (Four b c d e) m sf  = m `seq` Deep (Two a b) (Node3 c d e <| m) sf
   a <| Deep pr m sf              = Deep (appendd (One a) pr) m sf
 
@@ -62,7 +62,7 @@ instance TASequence FingerTree where
               h ::: t -> h :< deepl t m sf
 
   tviewr Empty = TAEmptyR
-  tviewr (Single a) = Empty :> a 
+  tviewr (Single a) = Empty :> a
   tviewr (Deep pr m sf) = case toListR sf of
             h :::< t -> deepr pr m t :> h
 
@@ -100,14 +100,14 @@ appendd (Three a b c)  (One d)        = Four a b c d
 
 
 
-infixr 5 ::: 
+infixr 5 :::
 
 
 data ZList r a b where
   ZNil :: ZList r a a
   (:::) :: r a b -> ZList r b c -> ZList r a c
 
-toList (One a) = a ::: ZNil 
+toList (One a) = a ::: ZNil
 toList (Two a b) = a ::: b ::: ZNil
 toList (Three a b c) = a ::: b ::: c ::: ZNil
 toList (Four a b c d) = a ::: b ::: c ::: d ::: ZNil
@@ -129,10 +129,10 @@ append (h ::: t) r = h ::: append t r
 deepl :: ZList r a b -> FingerTree (Node r) b c -> Digit r c d -> FingerTree r a d
 deepl ZNil m sf = case tviewl m of
            TAEmptyL -> toTree sf
-           a :< m' -> Deep (nodeToDigit a) m' sf 
+           a :< m' -> Deep (nodeToDigit a) m' sf
 deepl pr m sf = Deep (fromList pr) m sf
 
-infixr 5 :::< 
+infixr 5 :::<
 
 data ZListR r a b where
   ZNilR :: ZListR r a a
@@ -178,7 +178,7 @@ addAllr :: FingerTree r a b -> ZList r b c  -> FingerTree r a c
 addAllr m ZNil  = m
 addAllr m (h ::: t) = addAllr (m |> h) t
 
-  
+
 
 app3 :: FingerTree r a b -> ZList r b c -> FingerTree r c d -> FingerTree r a d
 app3 Empty ts xs = addAlll ts xs
@@ -186,7 +186,7 @@ app3 xs ts Empty = addAllr xs ts
 app3 (Single x) ts xs = x <| (addAlll ts xs)
 app3 xs ts (Single x) = (addAllr xs ts) |> x
 app3 (Deep pr1 m1 sf1) ts (Deep pr2 m2 sf2) =
-    Deep pr1 
+    Deep pr1
         (app3 m1 (nodes (append (toList sf1) (append ts (toList pr2)))) m2) sf2
 
 
@@ -205,7 +205,7 @@ foldMapn phi (Node2 r s) = phi r >>> phi s
 foldMapn phi (Node3 r s t) = phi r >>> phi s >>> phi t
 
 mapd :: (forall x y. c x y -> d x y) -> Digit c x y -> Digit d x y
-mapd phi (One r) = One (phi r) 
+mapd phi (One r) = One (phi r)
 mapd phi (Two r s) = Two (phi r) (phi s)
 mapd phi (Three r s t) = Three (phi r) (phi s) (phi t)
 mapd phi (Four r s t u) = Four (phi r) (phi s) (phi t) (phi u)
@@ -215,3 +215,9 @@ foldMapd phi (One r) = phi r
 foldMapd phi (Two r s) = phi r >>> phi s
 foldMapd phi (Three r s t) = phi r >>> phi s >>> phi t
 foldMapd phi (Four r s t u) = phi r >>> phi s >>> phi t >>> phi u
+
+
+instance Forall2 Show c => Show (ZList c a b) where
+  showsPrec d ZNil = showString "ZNil"
+  showsPrec d ((x :: c x y) ::: (xs :: ZList c y z)) = showsBinaryWith showsPrec showsPrec "(:::)" d x xs
+    \\ instShow @c @x @y
