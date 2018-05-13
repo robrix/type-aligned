@@ -2,6 +2,7 @@
 module Data.TASequence.Internal
 ( instShow
 , showsBinaryWith
+, showsTernaryWith
 , showsUnaryWith
 , Forall2
 , (\\)
@@ -17,3 +18,10 @@ instShow :: forall c x y . ForallF (ForallF Show) c :- Show (c x y)
 instShow = Sub $ case (instF :: ForallF (ForallF Show) c :- ForallF Show (c x)) of
   Sub Dict -> case (instF :: ForallF Show (c x) :- Show (c x y)) of
     Sub Dict -> Dict
+
+showsTernaryWith :: (Int -> a -> ShowS) -> (Int -> b -> ShowS) -> (Int -> c -> ShowS) -> String -> Int -> a -> b -> c -> ShowS
+showsTernaryWith showsPrecA showsPrecB showsPrecC s d a b c = showParen (d > 10)
+  $ showString s
+  . showChar ' ' . showsPrecA 11 a
+  . showChar ' ' . showsPrecB 11 b
+  . showChar ' ' . showsPrecC 11 c
