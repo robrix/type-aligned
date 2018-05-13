@@ -1,5 +1,4 @@
-{-# LANGUAGE GADTs, ViewPatterns, TypeOperators, PolyKinds #-}
-
+{-# LANGUAGE FlexibleContexts, GADTs, PolyKinds, ScopedTypeVariables, TypeApplications, TypeOperators, UndecidableInstances, ViewPatterns #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -22,6 +21,7 @@ module Data.TASequence.FastQueue(module Data.TASequence, FastQueue) where
 import Control.Category
 import Data.TASequence
 import Data.TASequence.ConsList
+import Data.TASequence.Internal
 import Data.TASequence.SnocList
 
 
@@ -37,7 +37,7 @@ data FastQueue tc a b where
   RQ :: !(ConsList tc a b) -> !(SnocList tc b c) -> !(ConsList tc x b) -> FastQueue tc a c
 
 queue :: ConsList tc a b -> SnocList tc b c -> ConsList tc x b -> FastQueue tc a c
-queue f r CNil = let f' = revAppend f r 
+queue f r CNil = let f' = revAppend f r
                  in RQ f' SNil f'
 queue f r (h `Cons` t) = RQ f r t
 
@@ -54,3 +54,8 @@ instance TASequence FastQueue where
 instance Category (FastQueue c) where
   id = tempty
   (.) = flip (><)
+
+
+instance Forall2 Show c => Show (FastQueue c a b) where
+  showsPrec d (RQ (xs :: ConsList c x y) (ys :: SnocList c y z) (zs :: ConsList c w y)) = showsTernaryWith showsPrec showsPrec showsPrec "RQ" d xs ys zs
+    \\ instShow @c @x @y \\ instShow @c @y @z \\ instShow @c @w @y
