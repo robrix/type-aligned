@@ -1,5 +1,4 @@
-{-# LANGUAGE Rank2Types,GADTs, DataKinds, PolyKinds, TypeOperators #-}
-
+{-# LANGUAGE DataKinds, FlexibleContexts, GADTs, PolyKinds, Rank2Types, ScopedTypeVariables, TypeApplications, TypeOperators, UndecidableInstances #-}
 
 
 -----------------------------------------------------------------------------
@@ -14,8 +13,8 @@
 -- A type aligned sequence, a queue, with amortized constant time: '|>', and 'tviewl'.
 --
 -- A simplified version of Okasaki's implicit recursive
--- slowdown queues. 
--- See purely functional data structures by Chris Okasaki 
+-- slowdown queues.
+-- See purely functional data structures by Chris Okasaki
 -- section 8.4: Queues based on implicit recursive slowdown
 --
 -----------------------------------------------------------------------------
@@ -23,6 +22,7 @@ module Data.TASequence.Queue(module Data.TASequence,Queue)  where
 
 import Control.Category
 import Data.TASequence
+import Data.TASequence.Internal
 import Prelude hiding (id)
 
 data P c a b where
@@ -39,11 +39,11 @@ data Queue c a b where
 
 instance TASequence Queue where
   tempty = Q0
-  tsingleton = Q1 
+  tsingleton = Q1
   q |> b = case q of
     Q0             -> Q1 b
     Q1 a           -> QN (B1 a) Q0 (B1 b)
-    QN l m (B1 a)  -> QN l m (B2 (a :* b)) 
+    QN l m (B1 a)  -> QN l m (B2 (a :* b))
     QN l m (B2 r)  -> QN l (m |> r) (B1 b)
 
   tviewl q = case q of
@@ -82,3 +82,8 @@ tmapb phi (B2 p) = B2 (tmapp phi p)
 tfoldMapb :: Category d => (forall x y. c x y -> d x y) -> B c x y -> d x y
 tfoldMapb phi (B1 c) = phi c
 tfoldMapb phi (B2 p) = tfoldMapp phi p
+
+
+instance Forall2 Show c => Show (P c a b) where
+  showsPrec d ((x :: c x y) :* (y :: c y z)) = showsBinaryWith showsPrec showsPrec "(:*)" d x y
+    \\ instShow @c @x @y \\ instShow @c @y @z
