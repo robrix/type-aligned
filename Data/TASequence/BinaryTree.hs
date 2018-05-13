@@ -15,7 +15,7 @@
 -- elements and then nodes are '><'.
 --
 -----------------------------------------------------------------------------
-module Data.TASequence.BinaryTree(module Data.TASequence, BinaryTree) where
+module Data.TASequence.BinaryTree(module Data.TASequence, BinaryTree(..)) where
 
 import  Control.Category
 import  Data.TASequence
@@ -29,14 +29,14 @@ data BinaryTree c x y where
 
 instance TASequence BinaryTree where
   tempty = Empty
-  tsingleton c = Leaf c 
+  tsingleton c = Leaf c
   (><) = Node
   tviewl Empty = TAEmptyL
   tviewl (Leaf c) = c :< Empty
   tviewl (Node (Node l m) r) = tviewl (Node l (Node m r))
   tviewl (Node (Leaf c) r)   = c :< r
   tviewl (Node Empty r)      = tviewl r
-                        
+
   tmap phi Empty = Empty
   tmap phi (Leaf c) = Leaf (phi c)
   tmap phi (Node b b') = Node (tmap phi b) (tmap phi b')
