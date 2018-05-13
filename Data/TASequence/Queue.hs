@@ -87,3 +87,9 @@ tfoldMapb phi (B2 p) = tfoldMapp phi p
 instance Forall2 Show c => Show (P c a b) where
   showsPrec d ((x :: c x y) :* (y :: c y z)) = showsBinaryWith showsPrec showsPrec "(:*)" d x y
     \\ instShow @c @x @y \\ instShow @c @y @z
+
+instance Forall2 Show c => Show (B c a b) where
+  showsPrec d (B1 (x :: c x y)) = showsUnaryWith showsPrec "B1" d x
+    \\ instShow @c @x @y
+  showsPrec d (B2 (x :: P c x y)) = showsUnaryWith showsPrec "B2" d x
+    \\ instShow @c @x @y
