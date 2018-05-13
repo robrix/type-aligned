@@ -93,3 +93,10 @@ instance Forall2 Show c => Show (B c a b) where
     \\ instShow @c @x @y
   showsPrec d (B2 (x :: P c x y)) = showsUnaryWith showsPrec "B2" d x
     \\ instShow @c @x @y
+
+instance Forall2 Show c => Show (Queue c a b) where
+  showsPrec d Q0 = showString "Q0"
+  showsPrec d (Q1 (x :: c x y)) = showsUnaryWith showsPrec "Q1" d x
+    \\ instShow @c @x @y
+  showsPrec d (QN (xs :: B c x y) (ys :: Queue (P c) y z) (zs :: B c z w)) = showsTernaryWith showsPrec showsPrec showsPrec "QN" d xs ys zs
+    \\ instShow @c @x @y \\ instShow @c @y @z \\ instShow @c @z @w
